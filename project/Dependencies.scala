@@ -116,6 +116,12 @@ object Dependencies {
     "tech.allegro.schema.json2avro" % "converter" % "0.2.15"
   )
 
+  val ProtoConverter: Seq[ModuleID] = List(
+    "io.confluent"          % "kafka-protobuf-serializer" % "7.5.1",
+    "com.google.protobuf"   % "protobuf-java-util"        % "3.22.2",
+    "com.thesamet.scalapb" %% "scalapb-runtime"           % "0.11.4"
+  )
+
   val ScalaTest: Seq[ModuleID]      = List("org.scalatest" %% "scalatest" % V.scalaTest % Test)
   val CatsEffectTest: Seq[ModuleID] = List("org.typelevel" %% "cats-effect-testing-scalatest" % "1.5.0" % Test)
 

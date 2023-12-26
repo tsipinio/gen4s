@@ -13,9 +13,9 @@ import eu.timepit.refined.types.string.NonEmptyString
 
 sealed trait Output
 
-case class StdOutput() extends Output
+final case class StdOutput() extends Output
 
-case class KafkaOutput(
+final case class KafkaOutput(
   topic: Topic,
   bootstrapServers: BootstrapServers,
   decodeInputAsKeyValue: Boolean = false,
@@ -27,7 +27,7 @@ case class KafkaOutput(
   def kafkaProducerConfig: KafkaProducerConfig = producerConfig.getOrElse(KafkaProducerConfig.default)
 }
 
-case class AvroConfig(
+final case class AvroConfig(
   schemaRegistryUrl: String,
   keySchema: Option[File] = None,
   valueSchema: Option[File] = None,
@@ -35,10 +35,31 @@ case class AvroConfig(
   registryClientMaxCacheSize: Int = 1000
 )
 
-case class KafkaAvroOutput(
+final case class KafkaAvroOutput(
   topic: Topic,
   bootstrapServers: BootstrapServers,
   avroConfig: AvroConfig,
+  decodeInputAsKeyValue: Boolean = false,
+  headers: Map[String, String] = Map.empty,
+  batchSize: PosInt = PosInt.unsafeFrom(1000),
+  producerConfig: Option[KafkaProducerConfig] = None)
+    extends Output {
+
+  def kafkaProducerConfig: KafkaProducerConfig = producerConfig.getOrElse(KafkaProducerConfig.default)
+}
+
+final case class ProtobufConfig(
+  schemaRegistryUrl: String,
+  keySchema: Option[File] = None,
+  valueSchema: Option[File] = None,
+  autoRegisterSchemas: Boolean = false,
+  registryClientMaxCacheSize: Int = 1000
+)
+
+final case class KafkaProtobufOutput(
+  topic: Topic,
+  bootstrapServers: BootstrapServers,
+  protoConfig: ProtobufConfig,
   decodeInputAsKeyValue: Boolean = false,
   headers: Map[String, String] = Map.empty,
   batchSize: PosInt = PosInt.unsafeFrom(1000),
@@ -68,7 +89,7 @@ object HttpContentTypes extends enumeratum.Enum[HttpContentTypes] {
   case object TextXml         extends HttpContentTypes("text/xml")
 }
 
-case class HttpOutput(
+final case class HttpOutput(
   url: String,
   method: HttpMethods,
   parallelism: PosInt = PosInt.unsafeFrom(1),
@@ -77,7 +98,7 @@ case class HttpOutput(
   stopOnError: Boolean = true
 ) extends Output
 
-case class FsOutput(dir: NonEmptyString, filenamePattern: NonEmptyString) extends Output {
+final case class FsOutput(dir: NonEmptyString, filenamePattern: NonEmptyString) extends Output {
 
   def path(): Path =
     Paths.get(dir.value, FilenameUtils.getName(filenamePattern.value.format(System.currentTimeMillis())))
